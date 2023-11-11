@@ -1,44 +1,43 @@
 import { useState } from 'react';
 import css from './PhoneBook.module.css';
-import { useDispatch, useSelector } from 'react-redux';
-import { addContact } from 'redux/contactsReducer';
 
-export const PhoneBook = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    number: '',
-  });
-  const dispatch = useDispatch();
-  const contacts = useSelector(state => state.contacts.contacts);
 
-  const handleInput = e => {
-    const { name, value } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+export const PhoneBook = ({ handleAddNumber }) => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
 
-  const handleSubmit = event => {
-    event.preventDefault();
-    if (contacts.some(contact => contact.name === formData.name)) {
-      alert(`Contact ${formData.name} is already in contacts!`);
-      setFormData({ name: '', number: '' });
-      return;
+  const handleInput = event => {
+    switch (event.target.name) {
+      case 'name':
+        setName(event.target.value);
+        break;
+      case 'number':
+        setNumber(event.target.value);
+        break;
+      default:
     }
-    dispatch(addContact(formData));
-    setFormData({ name: '', number: '' });
   };
 
   return (
     <div className={css.container}>
-      <form className={css.form} onSubmit={handleSubmit}>
+      <form
+        className={css.form}
+        onSubmit={event => {
+          handleAddNumber({
+            event,
+            name,
+            number,
+          });
+          setName('');
+          setNumber('');
+        }}
+      >
         <label className={css.label}>
           Name
           <input
             className={css.input}
             onChange={handleInput}
-            value={formData.name}
+            value={name}
             type="text"
             name="name"
             required
@@ -49,7 +48,7 @@ export const PhoneBook = () => {
           <input
             className={css.input}
             onChange={handleInput}
-            value={formData.number}
+            value={number}
             type="tel"
             name="number"
             pattern="[\+]?[\d\s\(\)-]+"
